@@ -3,10 +3,13 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
+    "exec": "node ./dist/index.js",
+    "exec:example": "node ./dist/index.js ./resource/example.lox",
     "lint": "eslint --ext .js,.ts ./src",
     "lint:fix": "npm run lint -- --fix"
   },
   "devDependencies": {
+    "@types/node": "^16.11.6",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.22.0",
     "eslint": "^7.24.0",

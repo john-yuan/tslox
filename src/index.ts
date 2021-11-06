@@ -1,1 +1,3 @@
-console.log('Start build something great!')
+import { Lox } from './lox/Lox'
+
+Lox.exec(process.argv[2])
