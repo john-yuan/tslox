@@ -70,8 +70,34 @@ export class Scanner {
       case '\n':
         this.line += 1
         break
+      case '"':
+        this.string()
+        break
       default: Lox.error(this.line, 'Unexpected character.'); break
     }
+  }
+
+  private string () {
+    while (this.peek() !== '"' && !this.isAtEnd()) {
+      if (this.peek() === '\n') {
+        this.line += 1
+      }
+
+      this.advance()
+    }
+
+    if (this.isAtEnd()) {
+      Lox.error(this.line, 'Unterminated string.')
+      return
+    }
+
+    // The closing ".
+    this.advance()
+
+    // Trim the surrounding quotes.
+    const value = this.source.substring(this.start + 1, this.current - 1)
+
+    this.addToken(TokenType.STRING, value)
   }
 
   private match (expected: string) {
