@@ -73,8 +73,25 @@ export class Scanner {
       case '"':
         this.string()
         break
-      default: Lox.error(this.line, 'Unexpected character.'); break
+      default:
+        if (this.isDigit(c)) {
+          this.number()
+        } else {
+          Lox.error(this.line, 'Unexpected character.')
+        }
     }
+  }
+
+  private number () {
+    while (this.isDigit(this.peek())) this.advance()
+
+    if (this.peek() === '.' && this.isDigit(this.peekNext())) {
+      this.advance()
+
+      while (this.isDigit(this.peek())) this.advance()
+    }
+
+    this.addToken(TokenType.NUMBER, +this.source.substring(this.start, this.current))
   }
 
   private string () {
@@ -112,6 +129,20 @@ export class Scanner {
   private peek () {
     if (this.isAtEnd()) return '\0'
     return this.source.charAt(this.current)
+  }
+
+  private peekNext () {
+    if (this.current + 1 > this.source.length) return '\0'
+
+    return this.source.charAt(this.current + 1)
+  }
+
+  private isDigit (ch: string) {
+    const code = ch.charCodeAt(0)
+    const zero = '0'.charCodeAt(0)
+    const nine = '9'.charCodeAt(0)
+
+    return code >= zero && code <= nine
   }
 
   private advance () {
