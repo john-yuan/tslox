@@ -2,6 +2,27 @@ import { Lox } from './Lox'
 import { Token } from './Token'
 import { TokenType } from './TokenType'
 
+const keywords: {
+  [key: string]: TokenType;
+} = {
+  and: TokenType.AND,
+  class: TokenType.CLASS,
+  else: TokenType.ELSE,
+  false: TokenType.FALSE,
+  for: TokenType.FOR,
+  fun: TokenType.FUN,
+  if: TokenType.IF,
+  nil: TokenType.NIL,
+  or: TokenType.OR,
+  print: TokenType.PRINT,
+  return: TokenType.RETURN,
+  super: TokenType.SUPER,
+  this: TokenType.THIS,
+  true: TokenType.TRUE,
+  var: TokenType.VAR,
+  while: TokenType.WHILE
+}
+
 export class Scanner {
   readonly source: string;
   readonly tokens: Token[] = [];
@@ -76,6 +97,8 @@ export class Scanner {
       default:
         if (this.isDigit(c)) {
           this.number()
+        } else if (this.isAlphaNumeric(c)) {
+          this.identifier()
         } else {
           Lox.error(this.line, 'Unexpected character.')
         }
@@ -92,6 +115,15 @@ export class Scanner {
     }
 
     this.addToken(TokenType.NUMBER, +this.source.substring(this.start, this.current))
+  }
+
+  private identifier () {
+    while (this.isAlphaNumeric(this.peek())) this.advance()
+
+    const text = this.source.substring(this.start, this.current)
+    const type = keywords[text]
+
+    this.addToken(type || TokenType.IDENTIFIER)
   }
 
   private string () {
@@ -138,11 +170,15 @@ export class Scanner {
   }
 
   private isDigit (ch: string) {
-    const code = ch.charCodeAt(0)
-    const zero = '0'.charCodeAt(0)
-    const nine = '9'.charCodeAt(0)
+    return /^[0-9]$/.test(ch)
+  }
 
-    return code >= zero && code <= nine
+  private isAlpha (ch: string) {
+    return /^[_a-zA-Z]$/.test(ch)
+  }
+
+  private isAlphaNumeric (ch: string) {
+    return this.isAlpha(ch) || this.isDigit(ch)
   }
 
   private advance () {
