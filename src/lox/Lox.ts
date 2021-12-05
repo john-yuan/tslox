@@ -1,6 +1,9 @@
 import fs from 'fs'
 import readline from 'readline'
+import { Parser } from './Parser'
 import { Scanner } from './Scanner'
+import { Token } from './Token'
+import { TokenType } from './TokenType'
 
 export class Lox {
   static hasError: boolean = false;
@@ -42,14 +45,23 @@ export class Lox {
   static run (source: string) {
     const scanner = new Scanner(source)
     const tokens = scanner.scanTokens()
+    const parser = new Parser(tokens)
 
-    for (const token of tokens) {
-      console.log('-> ' + token.toString())
-    }
+    // for (const token of tokens) {
+    //  console.log('-> ' + token.toString())
+    // }
+
+    console.log(parser.parse())
   }
 
-  static error (line: number, message: string) {
-    this.report(line, '', message)
+  static error (lineOrToken: number | Token, message: string) {
+    if (typeof lineOrToken === 'number') {
+      this.report(lineOrToken, '', message)
+    } else if (lineOrToken.type === TokenType.EOF) {
+      this.report(lineOrToken.line, ' at end', message)
+    } else {
+      this.report(lineOrToken.line, ` at '${lineOrToken.lexeme}'`, message)
+    }
   }
 
   static report (line: number, where: string, message: string) {
